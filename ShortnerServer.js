@@ -1,7 +1,6 @@
 const http = require('http');
 const fs = require('fs');
 const queryString = require('querystring');
-const { url } = require('inspector');
 
 const server = http.createServer((req, res) => {
     if (req.url === '/') {
@@ -55,6 +54,17 @@ const server = http.createServer((req, res) => {
                 return;
             }
 
+
+            let data = {};
+
+            if (fs.existsSync('storage.json')) {
+                const fileContent = fs.readFileSync('storage.json', 'utf-8').trim();
+
+                if (fileContent) {
+                    data = JSON.parse(fileContent);
+                }
+            }
+
             //for uniqueness of alias
             if (data[alias]) {
                 res.writeHead(409, { 'Content-Type': 'text/plain' });
@@ -64,7 +74,7 @@ const server = http.createServer((req, res) => {
 
             //url validation;
             try {
-                new url(mainUrl);
+                new URL(mainUrl);
             } catch {
                 res.writeHead(400, { 'Content-Type': 'text/plain' });
                 res.end("Invalid URL format.");
@@ -72,10 +82,19 @@ const server = http.createServer((req, res) => {
             }
 
 
-            console.log(finalDataObject);
-        });
+            //merg the data now,
+            data[alias] = {
+                url: mainUrl,
+                timeStamp: new Date().toISOString(),
+                clicks: 0
+            }
 
-        res.end();
+            //finally making json data out of final data we get,
+            fs.writeFileSync('storage.json', JSON.stringify(data, null, 2));
+
+            res.writeHead(201, { 'Content-Type': 'text/plain' });
+            res.end(`Short link created: /${alias}`);
+        });
     }
 });
 
