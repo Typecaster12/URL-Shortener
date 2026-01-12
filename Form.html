@@ -79,17 +79,45 @@
         <div class="heading">
             <h1 class="main-heading">URl Shortner</h1>
         </div>
-        <form action="/submit" method="post">
+        <form action="/submit" method="post" id="form">
             <input type="url" placeholder="Paste your url here" name="mainUrl">
-            <input type="text" placeholder="Shortname" name="alias"> <!--“Alias” means: a chosen nickname that points to something real-->
+            <input type="text" placeholder="Shortname" name="alias">
+            <!--“Alias” means: a chosen nickname that points to something real-->
             <button type="submit">submit</button>
         </form>
 
 
         <div class="response">
-            <span class="response-container"></span>
+            <a id="result" target="_blank"></a>
         </div>
     </div>
+
+    <script>
+        let form = document.getElementById('form');
+
+        //adding event listener;
+        form.addEventListener('submit', async (e) => {
+            //prevent it from reload;
+            e.preventDefault();
+
+            //form object
+            //this object will take name's value of both the inputs instead of getting them one by one;
+
+            //as on the submit route we will get our url, se we have to fetch it;
+            const response = await fetch('/submit', {
+                method: "POST",
+                body: new URLSearchParams(form)
+            });
+
+            //now we returning the short url in string form so;
+            const shortUrl = await response.text();
+
+            //rendering the response into anchor tag;
+            let anchorElement = document.getElementById('result');
+            anchorElement.hrer = shortUrl;
+            anchorElement.textContent = shortUrl;
+        })
+    </script>
 </body>
 
 </html>
