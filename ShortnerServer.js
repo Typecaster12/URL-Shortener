@@ -1,7 +1,6 @@
 const http = require('http');
 const fs = require('fs');
 const queryString = require('querystring');
-const { log } = require('console');
 
 const server = http.createServer((req, res) => {
     if (req.url === '/') {
@@ -25,8 +24,10 @@ const server = http.createServer((req, res) => {
         });
 
         req.on('end', () => {
+
             //object containing mainUrl and alias;
             let dataObject = queryString.parse(textData);
+            // console.log(dataObject);
 
             //for alias formate validation
             const aliasPattern = /^[a-zA-Z0-9_-]+$/;
@@ -34,7 +35,7 @@ const server = http.createServer((req, res) => {
             //store into variable to check for some validations;
             let mainUrl = dataObject.mainUrl;
             let alias = dataObject.alias;
-
+            // console.log(alias);
             //into proper object formate;
             //!currently not in use..
             let finalDataObject = {
@@ -66,13 +67,18 @@ const server = http.createServer((req, res) => {
                 console.log("fileContent is : " + fileContent);//for debug;
                 //if fileContent have some data, parse that data into json data(make it json);
                 if (fileContent) {
-                    data = JSON.parse(fileContent);
+                    try {
+                        data = JSON.parse(fileContent);
+                    } catch (e) {
+                        console.error('Error parsing storage.json:', e);
+                        data = {}; // reset to empty
+                    }
                     // console.log("Logged data : " + data);//for debug;
                 }
             }
 
             //contains actual json data;
-            console.log(data);
+            // console.log(data);
 
             //for uniqueness of alias
             // console.log("data[alias]" + data[alias]);
@@ -103,7 +109,7 @@ const server = http.createServer((req, res) => {
             fs.writeFileSync('storage.json', JSON.stringify(data, null, 2));
 
             res.writeHead(201, { 'Content-Type': 'text/plain' });
-            res.end(`Short link created: /${alias}`);
+            res.end(`/${alias}`);
         });
     } else {
         //now the final part, we have to make Get request here so that use can get the response;
@@ -113,16 +119,23 @@ const server = http.createServer((req, res) => {
         //reading the json file to check if we have alias present in our storage file(json);
         //but first check if we have file
         //!we have done this process before but as this is for get request, 
-        if (fs.existsSync('Storage.json')) {
+        if (fs.existsSync('storage.json')) {
             //read
             const getFileContent = fs.readFileSync('storage.json', 'utf-8').trim();
 
             if (getFileContent) {
-                getData = JSON.parse(getFileContent);
+                try {
+                    getData = JSON.parse(getFileContent);
+                } catch (e) {
+                    console.error('Error parsing storage.json in GET:', e);
+                    getData = {};
+                }
             }
         }
 
         //if we have same alais already present there then we have to update the number of clicks;
+        console.log('getAlias:', getAlias);
+        console.log('getData:', getData);
         if (getData[getAlias]) {
             //clicks update;
             getData[getAlias].clicks += 1;
@@ -130,14 +143,15 @@ const server = http.createServer((req, res) => {
             //update the changes to the file;
             fs.writeFileSync('storage.json', JSON.stringify(getData, null, 2));
 
+            console.log(getData[getAlias])
             //rediricting the user with 302 status code;
             res.writeHead(302, {
-                location: getData[getAlias].url,
+                Location: getData[getAlias].url,
             });
 
-            console.log(req.url);
+            // console.log(req.url);
             //ending the response;
-            res.end(`Short link created: /${alias}`);
+            res.end();
         } else {
             res.writeHead(400, { 'content-type': 'text/plain' });
             res.end("Short link not found");

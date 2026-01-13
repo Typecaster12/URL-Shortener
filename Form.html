@@ -83,7 +83,7 @@
             <input type="url" placeholder="Paste your url here" name="mainUrl">
             <input type="text" placeholder="Shortname" name="alias">
             <!--“Alias” means: a chosen nickname that points to something real-->
-            <button type="submit">submit</button>
+            <button type="submit">Submit</button>
         </form>
 
 
@@ -101,21 +101,28 @@
             e.preventDefault();
 
             //form object
+            const formData = new FormData(form);
             //this object will take name's value of both the inputs instead of getting them one by one;
 
+            const urlEncodedData = new URLSearchParams(formData);
             //as on the submit route we will get our url, se we have to fetch it;
             const response = await fetch('/submit', {
                 method: "POST",
-                body: new URLSearchParams(form)
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                },
+                body: urlEncodedData.toString()
             });
+
+            console.log(response);
 
             //now we returning the short url in string form so;
             const shortUrl = await response.text();
-
+            console.log("Text response" + shortUrl);
             //rendering the response into anchor tag;
             let anchorElement = document.getElementById('result');
-            anchorElement.hrer = shortUrl;
-            anchorElement.textContent = shortUrl;
+            anchorElement.href = shortUrl;
+            anchorElement.textContent = window.location.origin + shortUrl;
         })
     </script>
 </body>
