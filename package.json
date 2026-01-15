@@ -1,0 +1,22 @@
+{
+  "name": "url-shortener",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ShortnerServer.js",
+  "scripts": {
+    "dev":"node --watch ShortnerServer.js",
+    "start": "node ShortnerServer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Typecaster12/URL-Shortener.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Typecaster12/URL-Shortener/issues"
+  },
+  "homepage": "https://github.com/Typecaster12/URL-Shortener#readme"
+}
